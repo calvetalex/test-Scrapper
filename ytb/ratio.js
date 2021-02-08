@@ -103,7 +103,7 @@ async function getRatio(url, debugMode) {
 
 function printData(result) {
     if (result && Object.keys(result).length !== 0) {
-        console.log("\nBILAN:");
+        console.log("\RESULTS:");
         console.log(`\tChannel:\t${result.name}`);
         console.log(`\tTotal views:\t${new Intl.NumberFormat().format(result.totalView)}`);
         console.log(`\tLikes:\t\t${new Intl.NumberFormat().format(result.satisfaction)}`);

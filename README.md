@@ -41,4 +41,17 @@ To try it:
 
 *./ytb/ratio.js*
 
-This program aims to reveal the ratio like/dislike of a given youtube channel.
+This program aims to reveal the ratio like/dislike of a given youtube channel. No problem to load url but use a lot your CPU when fetching data. **Unexpected bug !!** Cannot get more than 30 videos and I can't figure out why. Actually looking for a better way to load more videos without using ytb api.
+
+TODO:
+- [] group pages
+- [] distribute the calculations to lighten the cpu
+- [] find a better way to simulate mouse scrolling and get more videos
+
+To try it:
+
+`node ./ratio.js url [--debug]` : `url` must be a link to a youtube channel (home or video tab). `--debug` enable you to see what puppeteer is doing
+
+*Example*:
+
+![Scrapping GOTAGA channel](./ytb/.example_result.png)
