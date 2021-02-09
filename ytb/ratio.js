@@ -1,6 +1,8 @@
 const { exit } = require("process");
 const puppeteer = require("puppeteer");
 
+let DEBUG_MODE = false;
+
 async function getName(page) {
     return await page.evaluate(() => document.querySelector('#text-container #text.ytd-channel-name').innerText);
 }
@@ -69,12 +71,16 @@ function getStatistics(allStats) {
     allStats = allStats.map(elem => {
         if (elem.views && elem.ratio) {
             const views = Number(elem.views.replace(/[^0-9]/gmi, ""));
-            const ratio = elem.ratio.replace(/\n|\s/gmi, "");
+            const ratio = elem.ratio.replace(/\n|\s|,/gmi, "");
             const like = Number(ratio.split('/')[0]);
             const dislike = Number(ratio.split('/')[1]);
             return { views, like, dislike };
         }
     });
+    if (DEBUG_MODE) {
+        console.debug("PARSING DATA:")
+        console.debug(allStats);
+    }
     const totalView = allStats.reduce((a, b) => {
         return { views: a.views + b.views };
     }).views;
@@ -87,15 +93,23 @@ function getStatistics(allStats) {
     return { totalView, satisfaction, dissatisfaction };
 }
 
-async function getRatio(url, debugMode) {
+async function getRatio(url) {
     console.log(`Beginning process. Target = ${url}`);
-    const browser = await puppeteer.launch({ headless: debugMode ? false : true });
+    const browser = await puppeteer.launch({ headless: DEBUG_MODE ? false : true });
     const ytbInfos = await getChannelInfos(browser, url);
+    if (DEBUG_MODE) {
+        console.debug("YTB CHANNEl INFOS:");
+        console.debug(ytbInfos);
+    }
     const name = ytbInfos.name;
     let urlList = ytbInfos.videosUrl;
     urlList = urlList.filter(url => !(!url || url.length === 0 || url === ""));
     console.log(`Finded videos: ${urlList.length}\nScrapping data...`);
     let allStats = await Promise.all(urlList.map(link => getDataFromUrl(browser, link)));
+    if (DEBUG_MODE) {
+        console.debug("SCRAPER GET:");
+        console.debug(allStats);
+    }
     browser.close();
     allStats = allStats.filter(e => Object.keys(e).length !== 0);
     return Object.assign({}, { name }, getStatistics(allStats));
@@ -120,8 +134,9 @@ if (process.argv.length < 3) {
     exit(84);
 } else {
     if (process.argv[3] && process.argv[3] === "--debug") {
-        getRatio(process.argv[2], true).then(res => printData(res));
+        DEBUG_MODE = true;
+        getRatio(process.argv[2]).then(res => printData(res));
     } else {
-        getRatio(process.argv[2], false).then(res => printData(res));
+        getRatio(process.argv[2]).then(res => printData(res));
     }
 }
