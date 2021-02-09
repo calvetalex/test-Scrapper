@@ -44,6 +44,7 @@ async function getChannelInfos(browser, url) {
         console.log("Looking for ytb channel name...");
         const name = await getName(page);
         const videosUrl = await autoScroll(page);
+        page.close();
         return { name, videosUrl };
     } catch(e) {
         console.error(`Impossible to find a ytb channel at ${url}`);
@@ -56,11 +57,13 @@ async function getDataFromUrl(browser, url) {
     const page = await browser.newPage();
     try {
         await page.goto(url, { waitUntil: 'load', timeout: 0 });
-        return await page.evaluate(() => {
+        const data = await page.evaluate(() => {
             const views = document.querySelector('.view-count').innerText;
             const ratio = document.querySelector('#sentiment #tooltip.style-scope.paper-tooltip.hidden').innerText;
             return { views, ratio };
         });
+        page.close();
+        return data;
     } catch(e) {
         console.error(`ERROR: '${url}' seems impossible to reach`)
         return {};
@@ -71,7 +74,7 @@ function getStatistics(allStats) {
     allStats = allStats.map(elem => {
         if (elem.views && elem.ratio) {
             const views = Number(elem.views.replace(/[^0-9]/gmi, ""));
-            const ratio = elem.ratio.replace(/\n|\s|,/gmi, "");
+            const ratio = elem.ratio.replace(/\n|\s|,|\t/gmi, "");
             const like = Number(ratio.split('/')[0]);
             const dislike = Number(ratio.split('/')[1]);
             return { views, like, dislike };
@@ -95,7 +98,7 @@ function getStatistics(allStats) {
 
 async function getRatio(url) {
     console.log(`Beginning process. Target = ${url}`);
-    const browser = await puppeteer.launch({ headless: DEBUG_MODE ? false : true });
+    const browser = await puppeteer.launch();
     const ytbInfos = await getChannelInfos(browser, url);
     if (DEBUG_MODE) {
         console.debug("YTB CHANNEl INFOS:");
