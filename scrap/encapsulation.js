@@ -30,7 +30,7 @@ class Tool {
         return;
       }
       try {
-        const requests = this.requestsList.slice(
+        const requests = this.requestsList.splice(
           0,
           this.params.MAX_REQUESTS_PER_DELAY
         );
@@ -53,7 +53,7 @@ class Tool {
   }
 
   sendRequests(requests) {
-    requests.forEach(req => {
+    requests.forEach((req) => {
       const { url, callback, header, params, nbFails } = req;
       this.loadPage(url, callback, header, params, nbFails);
     });
@@ -71,18 +71,18 @@ class Tool {
   async loadPage(url, callback, header, params, nbFails) {
     this.totalRequests += 1;
     try {
+      if (this.logger) {
+        this.logger.log(`LOADING PAGE :: ${url}`);
+      }
       const { htmlContent, responseHeaders } = await this.usePuppeteer(
         url,
         header
       );
-      if (this.logger) {
-        this.logger.log(`LOADING PAGE :: ${url}`);
-        try {
-          this.callbacks[callback](htmlContent, params, responseHeaders);
-        } catch (e) {
-          if (this.logger) {
-            this.logger.error(`Parsing error [${url}] :: ${e}`);
-          }
+      try {
+        this.callbacks[callback](htmlContent, params, responseHeaders);
+      } catch (e) {
+        if (this.logger) {
+          this.logger.error(`Parsing error [${url}] :: ${e}`);
         }
       }
     } catch (e) {
@@ -161,6 +161,7 @@ class Tool {
       });
       await browser.close();
     }
+    if (this.callbacks["end"]) this.callbacks["end"]();
     const end = performance.now();
     if (crash && this.logger)
       this.logger.error(`PROCESS CRASHED ! (time spent: ${end - start}ms)`);
