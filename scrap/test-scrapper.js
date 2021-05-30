@@ -20,6 +20,7 @@ scraper.addParsingCallback("parseCategory", function (data, params) {
   const $ = cheerio.load(data);
   let items = 0;
 
+  scraper.logger.debug(JSON.stringify(params));
   $(".ProductTile.js-ProductTile").each(function () {
     const pid = $(this).attr("data-itemid");
     if (MAP_PRODUCT[pid]) return;
@@ -80,7 +81,7 @@ scraper.addParsingCallback("getCategory", function (data, params) {
       params.page = 1;
       params.current = 0;
       scraper.logger.log(`CATEGORY [Main] :: ${params.category} // ${url}`);
-      scraper.addRequest(url, "parseCategory", {}, params);
+      scraper.addRequest(url, "parseCategory", {}, { ...params });
     }
   );
 });
