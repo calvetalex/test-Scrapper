@@ -2,7 +2,7 @@ const cheerio = require("cheerio");
 const fs = require("fs");
 const Tool = require("./encapsulation");
 const scraper_params = {
-  DELAY_MS: 4000,
+  DELAY_MS: 1000,
   MAX_REQUESTS_PER_DELAY: 1,
   MAX_TIMEOUT: 40000,
   MAX_EMPTY_REQUESTS: 5,
