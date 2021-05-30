@@ -11,6 +11,7 @@ To see what is happening during the process, you can add the option `{ headless:
 - screenshot/
 - scrapping_demo/
 - personnal_training/
+- scrap/
 
 ***
 ## Screenshot
@@ -55,3 +56,7 @@ To try it:
 *Example*:
 
 ![Scrapping GOTAGA channel](./ytb/.example_result.png)
+
+## scrap
+
+Small script with a with a puppeteer encapsulation test. To run it just write `node scrap/test-scrapper.js` in your terminal. It will create logs and a report (a CSV file) with all products that have been gotten.
