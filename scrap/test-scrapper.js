@@ -3,9 +3,9 @@ const fs = require("fs");
 const Tool = require("./encapsulation");
 const scraper_params = {
   DELAY_MS: 1000,
-  MAX_REQUESTS_PER_DELAY: 1,
+  MAX_REQUESTS_PER_DELAY: 3,
   MAX_TIMEOUT: 40000,
-  MAX_EMPTY_REQUESTS: 5,
+  MAX_EMPTY_REQUESTS: 15,
 };
 const DATA = [];
 const MAP_LINK = {},
@@ -20,7 +20,7 @@ scraper.addParsingCallback("parseCategory", function (data, params) {
   const $ = cheerio.load(data);
   let items = 0;
 
-  scraper.logger.debug(JSON.stringify(params));
+  // scraper.logger.debug(JSON.stringify(params));
   $(".ProductTile.js-ProductTile").each(function () {
     const pid = $(this).attr("data-itemid");
     if (MAP_PRODUCT[pid]) return;
@@ -95,7 +95,7 @@ scraper.addParsingCallback("end", function () {
     msg = `${msg}${pid},${sid},${name},${price},${size},${category},${stock}\n`;
   });
   scraper.logger.log(
-    `RESUME: ${ITOTAL} products, ${IIN} available and ${IOUT} not available`
+    `RESUME: ${ITOTAL} products, ${IIN} available (${Math.ceil(IIN * 100 / ITOTAL)}%)  and ${IOUT} (${Math.floor(IOUT * 100 / ITOTAL)}%) not available`
   );
   fs.writeFileSync("./report-scraper.csv", msg, { flag: "w+" });
 });
